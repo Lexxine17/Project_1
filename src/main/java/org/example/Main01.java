@@ -4,25 +4,24 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.nio.file.StandardOpenOption;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
 
 public class Main01 {
     public static void main(String[] args) {
-        printText();
 
-        ArrayList<String> tasks = new ArrayList<>();
-       while (true) {
-           chooseOption(tasks);
-       }
-//        listTasks(tasks);
-//        removeTask(tasks);
-//        listTasks(tasks);
+        printMenu();
+        try {
+            List<String> tasks = downloadFromFile();
+            while(true) {
+                chooseOption(tasks);
+            }
+        } catch (IOException e) {
+            System.out.println("File cannot be reached");
+        }
     }
 
-    public static void printText() {
+    public static void printMenu() {
         String firstMessage = "Please select an option:";
         String[] options = {"1. add", "2. remove", "3. list", "4. exit"};
 
@@ -42,13 +41,14 @@ public class Main01 {
         return lines;
     }
 
-    public static void chooseOption(ArrayList<String> tasks) {
+    public static void chooseOption(List<String> tasks) {
         Scanner scanner = new Scanner(System.in);
         System.out.println("Please select an option (type ether number or name of the option). Type 0 or 'back' to go back to the main menu:");
         String option = scanner.nextLine().toLowerCase();
         switch (option) {
-            case "0": case "back":
-                printText();
+            case "0":
+            case "back":
+                printMenu();
                 break;
             case "1":
             case "add":
@@ -71,7 +71,7 @@ public class Main01 {
         }
     }
 
-    public static ArrayList<String> addTask(ArrayList<String> tasks) {
+    public static List<String> addTask(List<String> tasks) {
 
         Scanner scanner = new Scanner(System.in);
         while (true) {
@@ -81,23 +81,30 @@ public class Main01 {
             String dueDate = scanner.nextLine();
             System.out.println("Is your task important: true/false");
             String isImportant = scanner.nextLine();
-            tasks.add(task + " " + dueDate + " " + isImportant);
+            tasks.add(task + ", " + dueDate + ", " + isImportant);
             System.out.println("Do you want to add another task? (type yes/no)");
             String answer = scanner.nextLine();
             if (answer.equalsIgnoreCase("no")) {
                 break;
             }
+            while (!answer.equalsIgnoreCase("yes")) {
+                System.out.println("Invalid option selected. Type yes or no");
+                String answer2 = scanner.nextLine();
+                if (answer2.equalsIgnoreCase("yes")) {
+                    break;
+                }
+            }
         }
         return tasks;
     }
 
-    public static void listTasks(ArrayList<String> tasks) {
+    public static void listTasks(List<String> tasks) {
         for (int i = 0; i < tasks.size(); i++) {
             System.out.println((i + 1) + " : " + tasks.get(i));
         }
     }
 
-    public static void removeTask(ArrayList<String> tasks) {
+    public static void removeTask(List<String> tasks) {
         Scanner scanner = new Scanner(System.in);
         System.out.println("Please select number to remove.");
         while (true) {
@@ -121,7 +128,7 @@ public class Main01 {
         return scanner.nextInt();
     }
 
-    public static void exit(ArrayList<String> tasks) {
+    public static void exit(List<String> tasks) {
         Path path = Paths.get("tasks2.csv");
         try {
             Files.write(path, tasks);
